@@ -1,0 +1,23 @@
+{
+    "author": {
+        "email": "imregabriel@gmail.com",
+        "name": "Gabriel Imre"
+    },
+    "bugs": {
+        "url": "https://github.com/gimre/epoxy/issues"
+    },
+    "description": "Elegant, seamless dependency injection container for node.js",
+    "main": "index.js",
+    "name": "epoxy",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/gimre/epoxy"
+    },
+    "scripts": {
+        "test": "echo OK"
+    },
+    "version": "0.0.1",
+    "dependencies": {
+        "debug": "^2.6.8"
+    }
+}
