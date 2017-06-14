@@ -1,15 +1,19 @@
 
 'use strict'
 
-const fs    = require( 'fs' )
-const p     = require( 'path' )
+const fs = require( 'fs' )
+const p  = require( 'path' )
+
+const { getExternalCaller } = require( './helpers' )
 
 exports = module.exports = class Container {
 
-    constructor( provider = './' ) {
+    constructor( providers = [ './' ] ) {
         this.factoryCache  = new Map
         this.instanceCache = new Map
-        this.providers     = [ provider ]
+        this.providers     = [ ]
+
+        this.provide( providers )
 
         if( process.env.DEBUG ) {
             const timed = require( './performance/timed' )
@@ -69,8 +73,14 @@ exports = module.exports = class Container {
         return require( path )
     }
 
-    provide( provider ) {
-        this.providers = [ ... this.providers, provider ]
+    provide( providers ) {
+        const calleeDir = p.dirname( getExternalCaller( __filename ) )
+        this.providers = this.providers.concat(
+            [ ]
+            .concat( providers )
+            .map( provider => p.join( calleeDir, provider ) )
+        )
+
         return this
     }
 
@@ -83,8 +93,7 @@ exports = module.exports = class Container {
         const { providers } = this
 
         for( const provider of providers ) {
-            const location = p.join( process.cwd( ), provider, id )
-
+            const location = p.join( provider, id )
             if( fs.existsSync( `${ location }.js` ) ) {
                 return location
             }
