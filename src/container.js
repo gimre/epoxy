@@ -5,7 +5,7 @@ const fs = require( 'fs' )
 const p  = require( 'path' )
 
 const { getExternalCaller } = require( './helpers' )
-const Strategies = require( './strategies' )
+const { ModuleParse }       = require( './strategies' )
 
 exports = module.exports = class Container {
 
@@ -13,7 +13,7 @@ exports = module.exports = class Container {
         this.factoryCache  = new Map
         this.instanceCache = new Map
         this.providers     = [ ]
-        this.strategy      = Strategies.ExportsMetadata
+        this.strategy      = ModuleParse
 
         this.provide( providers )
 
@@ -24,14 +24,12 @@ exports = module.exports = class Container {
     }
 
     create( id ) {
-        // const log = debug( `epoxy:${ id }` )
         const {
             factoryCache,
             instanceCache
         } = this
 
         if( ! factoryCache.has( id ) ) {
-            // log( `factory cache miss for ${ id }` )
             factoryCache.set( id, this.load( this.resolve( id ) ) )
         }
 
@@ -41,20 +39,18 @@ exports = module.exports = class Container {
             .map( id => this.create( id ) )
 
         if( ! this.isSingleton( info ) ) {
-            return this.getInstance( info )
+            return this.getInstance( info, dependencies )
         }
         
         if( ! instanceCache.has( id ) ) {
-            // log( `instance cache miss for ${ id }` )
-            instanceCache.set( id, this.getInstance( info ) )
+            instanceCache.set( id, this.getInstance( info, dependencies ) )
         }
 
         return instanceCache.get( id )
     }
 
-    getInstance( info ) {
+    getInstance( info, dependencies ) {
         const {
-            dependencies,
             factory,
             type
         } = info

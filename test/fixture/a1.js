@@ -1,5 +1,5 @@
 
-exports = module.exports = ( a, one ) => a + one
+exports = module.exports = ( a, one = '1' ) => a + one
 
 exports[ '@inject' ] = [
     'a',

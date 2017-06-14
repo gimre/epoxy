@@ -42,3 +42,17 @@ describe( 'Container.create', ( ) => {
         this.container = null
     } )
 } )
+
+describe( 'Container.Strategies', ( ) => {
+    beforeEach( ( ) => {
+        this.container = new Container( [
+            './fixture/strategies'
+        ] )
+    } )
+
+    test( 'should create module with parse provider', 'ab' )
+
+    afterEach( ( ) => {
+        this.container = null
+    } )
+} )
