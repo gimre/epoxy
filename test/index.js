@@ -8,7 +8,7 @@ process.env.DEBUG = '='
 const test = ( message, id ) => {
     it( message, ( ) => {
         const instance = this.container.create( id )
-        expect( instance ).to.be.equal( path.basename( id ) )
+        expect( instance.valueOf( ) ).to.be.equal( path.basename( id ) )
     } )
 }
 

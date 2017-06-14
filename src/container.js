@@ -29,24 +29,27 @@ exports = module.exports = class Container {
             instanceCache
         } = this
 
-        if( ! factoryCache.has( id ) ) {
-            factoryCache.set( id, this.load( this.resolve( id ) ) )
+        let factory = factoryCache.get( id )
+        if( factory == null ) {
+            factory = this.load( this.resolve( id ) )
+            factoryCache.set( id, factory )
         }
 
-        const factory = factoryCache.get( id )
+        let instance = instanceCache.get( id )
+        if( instance != null ) {
+            return instance
+        }
+
         const info = new this.strategy( factory )
         const dependencies = info.dependencies
             .map( id => this.create( id ) )
 
-        if( ! this.isSingleton( info ) ) {
-            return this.getInstance( info, dependencies )
-        }
-        
-        if( ! instanceCache.has( id ) ) {
-            instanceCache.set( id, this.getInstance( info, dependencies ) )
+        instance = this.getInstance( info, dependencies )
+        if( this.isSingleton( info ) ) {
+            instanceCache.set( id, instance )
         }
 
-        return instanceCache.get( id )
+        return instance
     }
 
     getInstance( info, dependencies ) {
@@ -55,14 +58,38 @@ exports = module.exports = class Container {
             type
         } = info
 
-        switch( type ) {
-            case 'constructor':
-                return new factory( ... dependencies )
-            case 'factory':
-            case 'singleton':
-            default:
-                return factory( ... dependencies )
-        }
+        const instance = new Proxy( { }, {
+            get: function( target, property ) {
+                if( target.__instance == null ) {
+                    let instance = null
+                    switch( type ) {
+                        case 'constructor':
+                            instance = new factory( ... dependencies )
+                            break
+                        case 'factory':
+                        case 'singleton':
+                        default:
+                            instance = factory( ... dependencies )
+                            break
+                    }
+
+                    Object.defineProperty( target, '__instance', {
+                        configurable: false,
+                        enumerable: false,
+                        value: instance,
+                        writable: false
+                    } )
+                }
+
+                const value = target.__instance[ property ]
+                if( typeof value === 'function' ) {
+                    return value.bind( target.__instance )
+                }
+                return value
+            }
+        } )
+
+        return instance
     }
 
     isSingleton( factory ) {
