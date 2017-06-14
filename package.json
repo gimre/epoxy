@@ -14,10 +14,15 @@
         "url": "https://github.com/gimre/epoxy"
     },
     "scripts": {
-        "test": "echo OK"
+        "test": "cross-env DEBUG=epoxy mocha test/index.js"
     },
     "version": "0.0.1",
     "dependencies": {
         "debug": "^2.6.8"
+    },
+    "devDependencies": {
+        "chai": "^4.0.2",
+        "cross-env": "^5.0.1",
+        "mocha": "^3.4.2"
     }
 }
