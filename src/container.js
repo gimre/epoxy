@@ -5,6 +5,7 @@ const fs = require( 'fs' )
 const p  = require( 'path' )
 
 const { getExternalCaller } = require( './helpers' )
+const Strategies = require( './strategies' )
 
 exports = module.exports = class Container {
 
@@ -12,6 +13,7 @@ exports = module.exports = class Container {
         this.factoryCache  = new Map
         this.instanceCache = new Map
         this.providers     = [ ]
+        this.strategy      = Strategies.ExportsMetadata
 
         this.provide( providers )
 
@@ -34,27 +36,30 @@ exports = module.exports = class Container {
         }
 
         const factory = factoryCache.get( id )
-        const dependencies = this.getDependencies( factory )
+        const info = new this.strategy( factory )
+        const dependencies = info.dependencies
             .map( id => this.create( id ) )
 
-        if( ! this.isSingleton( factory ) ) {
-            return this.getInstance( factory, dependencies )
+        if( ! this.isSingleton( info ) ) {
+            return this.getInstance( info )
         }
         
         if( ! instanceCache.has( id ) ) {
             // log( `instance cache miss for ${ id }` )
-            instanceCache.set( id, this.getInstance( factory, dependencies ) )
+            instanceCache.set( id, this.getInstance( info ) )
         }
 
         return instanceCache.get( id )
     }
 
-    getDependencies( factory ) {
-        return factory[ '@inject' ] || [ ]
-    }
+    getInstance( info ) {
+        const {
+            dependencies,
+            factory,
+            type
+        } = info
 
-    getInstance( factory, dependencies ) {
-        switch( factory[ '@type' ] ) {
+        switch( type ) {
             case 'constructor':
                 return new factory( ... dependencies )
             case 'factory':
