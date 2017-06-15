@@ -39,15 +39,17 @@ exports = module.exports = class Container {
         if( instance != null ) {
             return instance
         }
-
+        
         const info = new this.strategy( factory )
-        const dependencies = info.dependencies
-            .map( id => this.create( id ) )
+        let dependencies = [ ]
 
         instance = this.getInstance( info, dependencies )
         if( this.isSingleton( info ) ) {
             instanceCache.set( id, instance )
         }
+        
+        dependencies.push( ... info.dependencies
+            .map( id => this.create( id ) ) )
 
         return instance
     }

@@ -1,5 +1,2 @@
 
-exports = module.exports = ( first ) => ( {
-    value: 5,
-    log: ( ) => console.log( first.value )
-} )
+exports = module.exports = ( first ) => first.value + 3
