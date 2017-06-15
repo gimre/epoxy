@@ -14,7 +14,7 @@
         "url": "https://github.com/gimre/epoxy"
     },
     "scripts": {
-        "test": "cross-env DEBUG=epoxy mocha test/index.js"
+        "test": "cross-env DEBUG=epoxy nyc --reporter=lcovonly mocha test/index.js && codecov"
     },
     "version": "0.0.1",
     "dependencies": {
@@ -23,7 +23,9 @@
     },
     "devDependencies": {
         "chai": "^4.0.2",
+        "codecov": "^2.2.0",
         "cross-env": "^5.0.1",
-        "mocha": "^3.4.2"
+        "mocha": "^3.4.2",
+        "nyc": "^11.0.2"
     }
 }
