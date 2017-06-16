@@ -7,7 +7,7 @@
         "url": "https://github.com/gimre/epoxy/issues"
     },
     "description": "Elegant, seamless dependency injection container for node.js",
-    "main": "lib/container.js",
+    "main": "lib/index.js",
     "name": "epoxy-di",
     "repository": {
         "type": "git",

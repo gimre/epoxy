@@ -1,15 +1,15 @@
 
 'use strict'
 
-const fs = require( 'fs' )
 const p  = require( 'path' )
 
 const { getExternalCaller } = require( './helpers' )
 const { ModuleParse }       = require( './strategies' )
+const { Providers }         = require( './providers' )
 
-exports = module.exports = class Container {
+class Container {
 
-    constructor( providers = [ './' ] ) {
+    constructor( providers = [ Providers.CurrentDirectory ] ) {
         this.factoryCache  = new Map
         this.instanceCache = new Map
         this.providers     = [ ]
@@ -58,6 +58,8 @@ exports = module.exports = class Container {
         switch( type ) {
             case 'constructor':
                 return new factory( ... dependencies )
+            case 'instance':
+                return factory
             case 'factory':
             case 'singleton':
             default:
@@ -79,14 +81,19 @@ exports = module.exports = class Container {
         this.providers = this.providers.concat(
             [ ]
             .concat( providers )
-            .map( provider => p.join( calleeDir, provider ) )
+            .map( provider => {
+                if( provider === Providers.NodeModules ) {
+                    return provider
+                }
+                return p.join( calleeDir, provider )
+            } )
         )
 
         return this
     }
 
     register( id, factory ) {
-        this.cache[ id ] = factory
+        this.factoryCache[ id ] = factory
         return this
     }
 
@@ -95,12 +102,20 @@ exports = module.exports = class Container {
 
         for( const provider of providers ) {
             const location = p.join( provider, id )
-            if( fs.existsSync( `${ location }.js` ) ) {
+            try {
+                require.resolve( location )
                 return location
+            } catch( ex ) {
+                continue
             }
         }
 
         throw( new Error( `couldn't resolve "${ id }"` ) )
     }
 
+}
+
+exports = module.exports = {
+    Container,
+    Providers
 }

@@ -1,7 +1,7 @@
 
-const expect    = require( 'chai' ).expect
-const path      = require( 'path' )
-const Container = require( '../lib' )
+const expect = require( 'chai' ).expect
+const path   = require( 'path' )
+const { Container, Providers } = require( '../lib' )
 
 process.env.DEBUG = '='
 
@@ -37,6 +37,20 @@ describe( 'Container.create', ( ) => {
     test( 'should create nested module', 'provider1/a' )
     test( 'should create module with dependencies from same provider', 'ab' )
     test( 'should create module with dependencies from multiple providers', 'a1' )
+
+    afterEach( ( ) => {
+        this.container = null
+    } )
+} )
+
+describe( 'Container.providers', ( ) => {
+    beforeEach( ( ) => {
+        this.container = new Container( Providers.NodeModules )
+    } )
+
+    it( 'should create node module', ( ) => {
+        expect( this.container.create( 'fs' ) ).to.be.equal( require( 'fs' ) )
+    } )
 
     afterEach( ( ) => {
         this.container = null

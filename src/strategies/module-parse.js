@@ -34,14 +34,13 @@ const parse = ( fn ) => {
 
 exports = module.exports = class {
     constructor( factory ) {
-        if( ! ( typeof factory === 'function' ) ) {
-            throw( 'factory must be a function' )
-        }
-
-        this.factory = factory
-        
+        this.factory       = factory
         this._dependencies = null
         this._type         = null
+
+        if( ! ( typeof factory === 'function' ) ) {
+            this._type = 'instance'
+        }
     }
 
     get dependencies( ) {
