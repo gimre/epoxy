@@ -15,12 +15,12 @@ Epoxy is a lightweight (195 sloc) IoC container for NodeJS. Notable features:
 ### Table of Contents
 ---
   * [ Container ]( #container )
-      * [ constructor( [ providers ] ) ]( )
+      * [ constructor( [ providers ] ) ]( #constructor-providers-providerscurrentdirectory )
       * [ create( id ) ]( #containercreate-id )
       * [ register( id, factory ) ]( #containerregister-id-factory )
   * [ Providers ]( #providers )
   * [ Strategies ]( #strategies )
-
+  
 ### **Container**
 ### **constructor( [ providers = [ Providers.CurrentDirectory ]( #providers ) ] )**
 ### **Container.create( id )**
