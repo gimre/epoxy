@@ -6,7 +6,7 @@
 Epoxy is a lightweight (195 sloc) IoC container for NodeJS. Notable features:
   * automatic dependency injection ( in multiple flavours )
   * multiple injection patterns - ```factory, constructor, singleton, constant```
-  * circular depedency detection and resolution ( if possible )
+  * circular depedency detection and resolution, if possible
 
 ## Installation
 ```npm install epoxy-di```
@@ -20,7 +20,7 @@ Epoxy is a lightweight (195 sloc) IoC container for NodeJS. Notable features:
       * [ register( id, factory ) ]( #containerregister-id-factory )
   * [ Providers ]( #providers )
   * [ Strategies ]( #strategies )
-  
+
 ### **Container**
 ### **constructor( [ providers = [ Providers.CurrentDirectory ]( #providers ) ] )**
 ### **Container.create( id )**
