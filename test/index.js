@@ -13,7 +13,7 @@ const {
     Errors,
     Providers,
     Strategies,
-    Types 
+    Types
 } = require( '../lib' )
 
 process.env.DEBUG = '='
@@ -27,7 +27,7 @@ const suite = ( name, tests ) => {
             this.container = new Container( [
                 './fixtures'
             ] )
-            
+
             sinon
             .stub( console, 'warn' )
             .callsFake( ( ) => { } )
@@ -82,9 +82,8 @@ suite( 'module resolution', ( ) => {
 suite( 'metadata extraction', ( ) => {
     it( 'extract from exports', ( ) => {
         const factory  = require( './fixtures/HJHF36DmW' )
-        const metadata = this.container.getFactoryMetadata( factory,
-            Strategies.ModuleMetadata
-        )
+        const metadata = this.container
+            .getFactoryMetadata( factory, Strategies.Exports )
 
         expect( metadata )
         .to.be.deep.equal( {
@@ -95,9 +94,8 @@ suite( 'metadata extraction', ( ) => {
 
     it( 'extract with parse', ( ) => {
         const factory  = require( './fixtures/HJHF36DmW' )
-        const metadata = this.container.getFactoryMetadata( factory,
-            Strategies.ModuleParse
-        )
+        const metadata = this.container
+            .getFactoryMetadata( factory, Strategies.Parse )
 
         expect( metadata )
         .to.be.deep.equal( {

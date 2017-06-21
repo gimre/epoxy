@@ -1,10 +1,10 @@
 
 'use strict'
 
-const ModuleMetadata = require( './module-metadata' )
-const ModuleParse    = require( './module-parse' )
+const Exports = require( './exports' )
+const Parse   = require( './parse' )
 
 exports = module.exports = {
-    ModuleMetadata,
-    ModuleParse
+    Exports,
+    Parse
 }

@@ -6,18 +6,16 @@ const p  = require( 'path' )
 const { LazyObject } = require( 'lazyref' )
 
 const { getExternalCaller } = require( './helpers' )
-const { ModuleParse }       = require( './strategies' )
 const Errors                = require( './errors' )
 const Providers             = require( './providers' )
+const Strategies            = require( './strategies' )
 const Types                 = require( './types' )
 
 exports = module.exports = class Container {
-
     constructor( providers = [ Providers.CurrentDirectory ] ) {
         this.factoryCache  = new Map
         this.instanceCache = new Map
         this.providers     = [ ]
-        this.strategy      = ModuleParse
 
         this.provide( providers )
 
@@ -59,7 +57,7 @@ exports = module.exports = class Container {
             const { size } = dependencyTree
 
             dependencies.forEach( d => dependencyTree.add( d ) )
-            
+
             // no size change for the Set => we had a duplicate
             if( dependencyTree.size === size ) {
                 console.warn( Errors.CircularDependency( id ) )
@@ -69,9 +67,8 @@ exports = module.exports = class Container {
         return dependencyTree
     }
 
-    getFactoryMetadata( factory, Strategy = this.strategy ) {
-        const  { dependencies, type } = new Strategy( factory )
-        return { dependencies, type }
+    getFactoryMetadata( factory, strategy = Strategies.Parse ) {
+        return strategy.getMetadata( factory )
     }
 
     getInstance( dependencies, factory, type ) {
@@ -128,5 +125,4 @@ exports = module.exports = class Container {
 
         throw( new Error( Errors.Resolve( id ) ) )
     }
-
 }
