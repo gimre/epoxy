@@ -1,45 +1,11 @@
 
 'use strict'
 
-const Exports = require( './exports' )
+const Exports           = require( './exports' )
+const { parseFunction } = require( '../helpers' )
 
-const parse = ( fn ) => {
-    const [ match, dependencyString ] = fn
-        .toString( )
-        .match( /(?:function|)\s*\(([^\)]*)\)/ ) || [ ]
-
-    if( ! match ) {
-        return [ ]
-    }
-
-    return dependencyString
-    .split( ',' )
-    .map( d => d.trim( ) )
-    .filter( Boolean )
-    .map( d => {
-        const [ match, dependency ] = d
-        .match( /=\s*["'`]([^"'`]+)["'`]/ ) || [ ]
-
-        if( match ) {
-            return dependency
-        }
-        return d
-    } )
-}
-
-exports = module.exports = {
-    getMetadata( factory ) {
-        return {
-            dependencies: this.getDependencies( factory ),
-            type:         this.getType( factory )
-        }
-    },
-
+exports = module.exports = Object.setPrototypeOf( {
     getDependencies( factory ) {
-        return parse( factory )
-    },
-
-    getType( factory ) {
-        return Exports.getType( factory )
+        return parseFunction( factory )
     }
-}
+}, Exports )

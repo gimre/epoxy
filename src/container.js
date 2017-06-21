@@ -32,9 +32,12 @@ exports = module.exports = class Container {
         for( const dep of dependencyTree.reverse( ) ) {
             const { factory, dependencies, type } = factoryCache.get( dep )
             const instances = dependencies.map( d => instanceCache.get( d ) )
+            const instance  = instanceCache.get( dep )
 
-            instanceCache.get( dep )
-            .resolveAs( this.getInstance( instances, factory, type ) )
+            if( instance instanceof LazyObject ) {
+                instance
+                .resolveAs( this.getInstance( instances, factory, type ) )
+            }
         }
 
         return instanceCache.get( id )
@@ -46,16 +49,20 @@ exports = module.exports = class Container {
 
         for( const dep of dependencyTree ) {
             if( ! factoryCache.has( dep ) ) {
-                this.register( dep, this.load( this.resolve( dep ) ) )
+                this.register( dep, this.resolve( dep ) )
+            }
+
+            const { dependencies, factory } = factoryCache.get( dep )
+            if( this.isNodeModule( id ) ) {
+                instanceCache.set( dep, factory )
+                continue
             }
 
             if( ! instanceCache.has( dep ) ) {
                 instanceCache.set( dep, new LazyObject )
             }
 
-            const { dependencies } = factoryCache.get( dep )
             const { size } = dependencyTree
-
             dependencies.forEach( d => dependencyTree.add( d ) )
 
             // no size change for the Set => we had a duplicate
@@ -68,7 +75,10 @@ exports = module.exports = class Container {
     }
 
     getFactoryMetadata( factory, strategy = Strategies.Parse ) {
-        return strategy.getMetadata( factory )
+        if( typeof factory === 'function' ) {
+            return strategy.getMetadata( factory )
+        }
+        return { dependencies: [ ], factory, type: Types.Constant }
     }
 
     getInstance( dependencies, factory, type ) {
@@ -82,6 +92,11 @@ exports = module.exports = class Container {
             default:
                 return factory( ... dependencies )
         }
+    }
+
+    isNodeModule( id ) {
+        const { location } = this.factoryCache.get( id )
+        return location === id
     }
 
     load( path ) {
@@ -105,15 +120,21 @@ exports = module.exports = class Container {
     }
 
     register( id, factory ) {
+        let location
+        if( typeof factory === 'string' ) {
+            location = factory
+            factory  = this.load( location )
+        }
+
         const { dependencies, type } = this.getFactoryMetadata( factory )
-        this.factoryCache.set( id, { factory, dependencies, type } )
-        return this
+        const entry = { dependencies, factory, location, type }
+        this.factoryCache.set( id, entry )
+
+        return entry
     }
 
     resolve( id ) {
-        const { providers } = this
-
-        for( const provider of providers ) {
+        for( const provider of this.providers ) {
             const location = p.join( provider, id )
             try {
                 require.resolve( location )

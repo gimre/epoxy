@@ -1,17 +1,14 @@
 
+'use strict'
+
+const Abstract = require( './abstract' )
+
 const metadata = {
     dependencies: '@inject',
     type:         '@type'
 }
 
-exports = module.exports = {
-    getMetadata( factory ) {
-        return {
-            dependencies: this.getDependencies( factory ),
-            type:         this.getType( factory )
-        }
-    },
-
+exports = module.exports = Object.setPrototypeOf( {
     getDependencies( factory ) {
         return factory[ metadata.dependencies ]
     },
@@ -19,4 +16,4 @@ exports = module.exports = {
     getType( factory ) {
         return factory[ metadata.type ]
     }
-}
+}, Abstract )

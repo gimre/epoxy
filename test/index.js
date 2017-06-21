@@ -57,30 +57,29 @@ describe( 'container construction', ( ) => {
 suite( 'module resolution', ( ) => {
     it( 'throws for non-existent module', ( ) => {
         const { container } = this
-
         expect( container.create.bind( container, 'missing-module' ) )
         .to.throw( Errors.Resolve( 'missing-module' ) )
     } )
 
     it( 'resolve root module', ( ) => {
-        expectEqual(
-            this.container.create('S1-9o6v7Z' ),
-            'S1-9o6v7Z'
-        )
+        const { container } = this
+        expectEqual( container.create('S1-9o6v7Z' ), 'S1-9o6v7Z' )
     } )
 
     it( 'resolve nested module', ( ) => {
-        expectEqual(
-            this.container.create('ByI4opDQb/B1GHsTDXb' ),
-            'B1GHsTDXb'
-        )
+        const { container } = this
+        expectEqual( container.create('ByI4opDQb/B1GHsTDXb' ), 'B1GHsTDXb' )
+    } )
+
+    it( 'resolve node module', ( ) => {
+        const { container } = this
+        container.provide( Providers.NodeModules )
+        expectEqual( container.create( 'fs' ), require( 'fs' ) )
     } )
 
     it( 'create module with dependencies from same provider', ( ) => {
-        expectEqual(
-            this.container.create('ByI4opDQb/B1GHsTDXb' ),
-            'B1GHsTDXb'
-        )
+        const { container } = this
+        expectEqual( container.create('ByI4opDQb/B1GHsTDXb' ), 'B1GHsTDXb' )
     } )
 
     it( 'create module with dependencies from multiple providers', ( ) => { } )
@@ -114,10 +113,8 @@ suite( 'metadata extraction', ( ) => {
 
 suite( 'modules with dependencies', ( ) => {
     it( 'resolve module with non-circular dependencies', ( ) => {
-        expectEqual(
-            this.container.create( 'HJHF36DmW' ),
-            'B1GHsTDXbS1-9o6v7Z'
-        )
+        const { container } = this
+        expectEqual( container.create( 'HJHF36DmW' ), 'B1GHsTDXbS1-9o6v7Z' )
     } )
 
     it( 'detect circular depedencies', ( ) => {

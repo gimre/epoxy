@@ -11,9 +11,27 @@ exports = module.exports = {
             }
         }
     },
+    parseFunction( fn ) {
+        const [ match, dependencyString ] = fn
+            .toString( )
+            .match( /(?:function|)\s*\(([^\)]*)\)/ ) || [ ]
 
-    intersect( A, B ) {
-        const S = new Set( B )
-        return new Set( [ ... A ].filter( v => S.has( v ) ) )
+        if( ! match ) {
+            return [ ]
+        }
+
+        return dependencyString
+        .split( ',' )
+        .map( d => d.trim( ) )
+        .filter( Boolean )
+        .map( d => {
+            const [ match, dependency ] = d
+            .match( /=\s*["'`]([^"'`]+)["'`]/ ) || [ ]
+
+            if( match ) {
+                return dependency
+            }
+            return d
+        } )
     }
 }
