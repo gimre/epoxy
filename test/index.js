@@ -55,6 +55,13 @@ describe( 'container construction', ( ) => {
 } )
 
 suite( 'module resolution', ( ) => {
+    it( 'throws for non-existent module', ( ) => {
+        const { container } = this
+
+        expect( container.create.bind( container, 'missing-module' ) )
+        .to.throw( Errors.Resolve( 'missing-module' ) )
+    } )
+
     it( 'resolve root module', ( ) => {
         expectEqual(
             this.container.create('S1-9o6v7Z' ),
