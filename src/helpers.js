@@ -14,7 +14,7 @@ exports = module.exports = {
     parseFunction( fn ) {
         const [ match, dependencyString ] = fn
             .toString( )
-            .match( /(?:function|)\s*\(([^\)]*)\)/ ) || [ ]
+            .match( /^(?:async|function\s*\*?|async\s+function|)\s*\(([^\)]*)\)/ ) || [ ]
 
         if( ! match ) {
             return [ ]
@@ -25,13 +25,28 @@ exports = module.exports = {
         .map( d => d.trim( ) )
         .filter( Boolean )
         .map( d => {
-            const [ match, dependency ] = d
+            // this will not match complex default parameter values such as:
+            // * a = [ 1, 2, 3 ]
+            // * a = ( b = 2 ) => { }
+            // possible solution - esprima
+            const [ isVariableName, variableName ] = d.
+            match( /^([a-zA-Z_$][0-9a-zA-Z_$]+)$/ ) || [ ]
+
+            if( isVariableName ) {
+                return variableName
+            }
+
+            const [ isDefaultValue, defaultValue ] = d
             .match( /=\s*["'`]([^"'`]+)["'`]/ ) || [ ]
 
-            if( match ) {
-                return dependency
+            if( isDefaultValue ) {
+                return defaultValue
             }
+
             return d
+            .split( '=' )
+            .shift( )
+            .trim( )
         } )
     }
 }

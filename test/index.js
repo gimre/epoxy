@@ -109,6 +109,34 @@ suite( 'metadata extraction', ( ) => {
             type: Types.Factory
         } )
     } )
+
+    it( 'extract with parse from invalid function', ( ) => {
+        const { container } = this
+        expectEqual( container.create( 'BkequUumZ' ), 'S1Q17UO7b' )
+    } )
+} )
+
+suite( 'module types', ( ) => {
+    it( Types.Constant, ( ) => {
+        const { container } = this
+        expectEqual( container.create( 'S1ZSxUOXW' ), 'S1ZSxUOXW' )
+    } )
+
+    it( Types.Constructor, ( ) => {
+        const { container } = this
+        expect( container.create( 'rJK3-IOXb' ).value )
+        .to.be.equal( 'rJK3-IOXb' )
+    } )
+
+    it( Types.Factory, ( ) => {
+        const { container } = this
+        expectEqual( container.create( 'HykBXUumb' ), 'HykBXUumb' )
+    } )
+
+    it( Types.Singleton, ( ) => {
+        const { container } = this
+        expectEqual( container.create( 'S1Q17UO7b' ), 'S1Q17UO7b' )
+    } )
 } )
 
 suite( 'modules with dependencies', ( ) => {
