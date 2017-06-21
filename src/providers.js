@@ -1,7 +1,5 @@
 
 exports = module.exports = {
-    Providers: {
-        CurrentDirectory: './',
-        NodeModules: ''
-    }
+    CurrentDirectory: './',
+    NodeModules: ''
 }

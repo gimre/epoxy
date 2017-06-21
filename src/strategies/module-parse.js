@@ -2,6 +2,7 @@
 'use strict'
 
 const ModuleMetadata = require( './module-metadata' )
+const Types = require( '../types' )
 
 const metadata = {
     dependencies: '@inject',
@@ -39,7 +40,7 @@ exports = module.exports = class {
         this._type         = null
 
         if( ! ( typeof factory === 'function' ) ) {
-            this._type = 'instance'
+            this._type = Types.Constant
         }
     }
 
@@ -56,6 +57,6 @@ exports = module.exports = class {
             return this._type
         }
 
-        return this._type = this.factory[ metadata.type ]
+        return this._type = ( new ModuleMetadata( this.factory ) ).type
     }
 }

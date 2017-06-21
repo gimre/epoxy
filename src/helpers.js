@@ -10,5 +10,10 @@ exports = module.exports = {
                 return filename
             }
         }
+    },
+
+    intersect( A, B ) {
+        const S = new Set( B )
+        return new Set( [ ... A ].filter( v => S.has( v ) ) )
     }
 }

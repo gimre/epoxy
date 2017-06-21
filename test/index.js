@@ -1,72 +1,141 @@
 
-const expect = require( 'chai' ).expect
-const path   = require( 'path' )
-const { Container, Providers } = require( '../lib' )
+const chai      = require( 'chai' )
+const path      = require( 'path' )
+const sinon     = require( 'sinon' )
+const sinonChai = require( 'sinon-chai' )
+
+const { expect } = chai
+
+chai.use( sinonChai )
+
+const {
+    Container,
+    Errors,
+    Providers,
+    Strategies,
+    Types 
+} = require( '../lib' )
 
 process.env.DEBUG = '='
 
-const test = ( message, id ) => {
-    it( message, ( ) => {
-        const instance = this.container.create( id )
-        expect( instance ).to.be.equal( path.basename( id ) )
+const expectEqual = ( a, b ) =>
+    expect( a == b || a.equals( b ) ).to.be.true
+
+const suite = ( name, tests ) => {
+    describe( name, ( ) => {
+        beforeEach( ( ) => {
+            this.container = new Container( [
+                './fixtures'
+            ] )
+            
+            sinon
+            .stub( console, 'warn' )
+            .callsFake( ( ) => { } )
+        } )
+
+        tests( )
+
+        afterEach( ( ) => {
+            this.container = null
+            console.warn.restore( )
+        } )
     } )
 }
 
-describe( 'Container( )', ( ) => {
-    it( 'should accept no parameters', ( ) => {
+describe( 'container construction', ( ) => {
+    it( 'no initial providers', ( ) => {
         new Container
     } )
-    it( 'should accept an optional provider path', ( ) => {
+    it( 'single initial provider', ( ) => {
         new Container( './fixture1' )
     } )
-    it( 'should accept an optional list of provider paths', ( ) => {
+    it( 'multiple initial providers', ( ) => {
         new Container( [ './fixture1', './fixture2' ] )
     } )
 } )
 
-describe( 'Container.create', ( ) => {
-    beforeEach( ( ) => {
-        this.container = new Container( [
-            './fixture',
-            './fixture/provider1',
-            './fixture/provider2'
-        ] )
+suite( 'module resolution', ( ) => {
+    it( 'resolve root module', ( ) => {
+        expectEqual(
+            this.container.create('S1-9o6v7Z' ),
+            'S1-9o6v7Z'
+        )
     } )
 
-    test( 'should create linear module', '_' )
-    test( 'should create nested module', 'provider1/a' )
-    test( 'should create module with dependencies from same provider', 'ab' )
-    test( 'should create module with dependencies from multiple providers', 'a1' )
+    it( 'resolve nested module', ( ) => {
+        expectEqual(
+            this.container.create('ByI4opDQb/B1GHsTDXb' ),
+            'B1GHsTDXb'
+        )
+    } )
 
-    afterEach( ( ) => {
-        this.container = null
+    it( 'create module with dependencies from same provider', ( ) => {
+        expectEqual(
+            this.container.create('ByI4opDQb/B1GHsTDXb' ),
+            'B1GHsTDXb'
+        )
+    } )
+
+    it( 'create module with dependencies from multiple providers', ( ) => { } )
+} )
+
+suite( 'metadata extraction', ( ) => {
+    it( 'extract from exports', ( ) => {
+        const factory  = require( './fixtures/HJHF36DmW' )
+        const metadata = this.container.getFactoryMetadata( factory,
+            Strategies.ModuleMetadata
+        )
+
+        expect( metadata )
+        .to.be.deep.equal( {
+            dependencies: [ 'ByI4opDQb/B1GHsTDXb', 'S1-9o6v7Z' ],
+            type: Types.Factory
+        } )
+    } )
+
+    it( 'extract with parse', ( ) => {
+        const factory  = require( './fixtures/HJHF36DmW' )
+        const metadata = this.container.getFactoryMetadata( factory,
+            Strategies.ModuleParse
+        )
+
+        expect( metadata )
+        .to.be.deep.equal( {
+            dependencies: [ 'ByI4opDQb/B1GHsTDXb', 'S1-9o6v7Z' ],
+            type: Types.Factory
+        } )
     } )
 } )
 
-describe( 'Container.providers', ( ) => {
-    beforeEach( ( ) => {
-        this.container = new Container( Providers.NodeModules )
+suite( 'modules with dependencies', ( ) => {
+    it( 'resolve module with non-circular dependencies', ( ) => {
+        expectEqual(
+            this.container.create( 'HJHF36DmW' ),
+            'B1GHsTDXbS1-9o6v7Z'
+        )
     } )
 
-    it( 'should create node module', ( ) => {
-        expect( this.container.create( 'fs' ) ).to.be.equal( require( 'fs' ) )
+    it( 'detect circular depedencies', ( ) => {
+        const a = this.container.create( 'rJoOgZO7b' )
+        const b = this.container.create( 'rkMG-WOQW' )
+
+        expect( console.warn )
+        .to.have.been.calledWith( Errors.CircularDependency( 'rJoOgZO7b' ) )
     } )
 
-    afterEach( ( ) => {
-        this.container = null
+    it( 'resolve module with circular dependencies', ( ) => {
+        const a = this.container.create( 'B14TxkOX-' )
+        const b = this.container.create( 'r18dbku7b' )
+
+        expect( a.getValue( ) )
+        .to.be.equal( 'B14TxkOX-r18dbku7b' )
+
+        expect( b.getValue( ) )
+        .to.be.equal( 'r18dbku7bB14TxkOX-' )
     } )
 } )
 
-describe( 'Container.Strategies', ( ) => {
-    beforeEach( ( ) => {
-        this.container = new Container( [
-            './fixture/strategies'
-        ] )
-    } )
-
-    test( 'should create module with parse provider', 'ab' )
-
-    afterEach( ( ) => {
-        this.container = null
-    } )
+suite( 'configure providers at runtime', ( ) => {
+    it( 'add provider', ( ) => { } )
+    it( 'remove provider', ( ) => { } )
 } )

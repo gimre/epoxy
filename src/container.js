@@ -3,11 +3,15 @@
 
 const p  = require( 'path' )
 
+const { LazyObject } = require( 'lazyref' )
+
 const { getExternalCaller } = require( './helpers' )
 const { ModuleParse }       = require( './strategies' )
-const { Providers }         = require( './providers' )
+const Errors                = require( './errors' )
+const Providers             = require( './providers' )
+const Types                 = require( './types' )
 
-class Container {
+exports = module.exports = class Container {
 
     constructor( providers = [ Providers.CurrentDirectory ] ) {
         this.factoryCache  = new Map
@@ -24,52 +28,63 @@ class Container {
     }
 
     create( id ) {
-        const {
-            factoryCache,
-            instanceCache
-        } = this
+        const { factoryCache, instanceCache } = this
+        const dependencyTree = Array.from( this.getDependencyTree( id ) )
 
-        if( ! factoryCache.has( id ) ) {
-            factoryCache.set( id, this.load( this.resolve( id ) ) )
-        }
+        for( const dep of dependencyTree.reverse( ) ) {
+            const { factory, dependencies, type } = factoryCache.get( dep )
+            const instances = dependencies.map( d => instanceCache.get( d ) )
 
-        const factory = factoryCache.get( id )
-        const info = new this.strategy( factory )
-        const dependencies = info.dependencies
-            .map( id => this.create( id ) )
-
-        if( ! this.isSingleton( info ) ) {
-            return this.getInstance( info, dependencies )
-        }
-        
-        if( ! instanceCache.has( id ) ) {
-            instanceCache.set( id, this.getInstance( info, dependencies ) )
+            instanceCache.get( dep )
+            .resolveAs( this.getInstance( instances, factory, type ) )
         }
 
         return instanceCache.get( id )
     }
 
-    getInstance( info, dependencies ) {
-        const {
-            factory,
-            type
-        } = info
+    getDependencyTree( id ) {
+        const { factoryCache, instanceCache } = this
+        const dependencyTree = new Set( [ id ] )
 
+        for( const dep of dependencyTree ) {
+            if( ! factoryCache.has( dep ) ) {
+                this.register( dep, this.load( this.resolve( dep ) ) )
+            }
+
+            if( ! instanceCache.has( dep ) ) {
+                instanceCache.set( dep, new LazyObject )
+            }
+
+            const { dependencies } = factoryCache.get( dep )
+            const { size } = dependencyTree
+
+            dependencies.forEach( d => dependencyTree.add( d ) )
+            
+            // no size change for the Set => we had a duplicate
+            if( dependencyTree.size === size ) {
+                console.warn( Errors.CircularDependency( id ) )
+            }
+        }
+
+        return dependencyTree
+    }
+
+    getFactoryMetadata( factory, Strategy = this.strategy ) {
+        const  { dependencies, type } = new Strategy( factory )
+        return { dependencies, type }
+    }
+
+    getInstance( dependencies, factory, type ) {
         switch( type ) {
-            case 'constructor':
-                return new factory( ... dependencies )
-            case 'instance':
+            case Types.Constant:
                 return factory
-            case 'factory':
-            case 'singleton':
+            case Types.Constructor:
+                return new factory( ... dependencies )
+            case Types.Factory:
+            case Types.Singleton:
             default:
                 return factory( ... dependencies )
         }
-    }
-
-    isSingleton( factory ) {
-        const { '@type': type } = factory
-        return ( type === 'singleton' || type === undefined )
     }
 
     load( path ) {
@@ -93,7 +108,8 @@ class Container {
     }
 
     register( id, factory ) {
-        this.factoryCache[ id ] = factory
+        const { dependencies, type } = this.getFactoryMetadata( factory )
+        this.factoryCache.set( id, { factory, dependencies, type } )
         return this
     }
 
@@ -110,12 +126,7 @@ class Container {
             }
         }
 
-        throw( new Error( `couldn't resolve "${ id }"` ) )
+        throw( new Error( Errors.Resolve( id ) ) )
     }
 
-}
-
-exports = module.exports = {
-    Container,
-    Providers
 }
