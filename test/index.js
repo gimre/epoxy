@@ -110,9 +110,14 @@ suite( 'metadata extraction', ( ) => {
         } )
     } )
 
-    it( 'extract with parse from invalid function', ( ) => {
+    it( 'extract with parse - non-string default value', ( ) => {
         const { container } = this
         expectEqual( container.create( 'BkequUumZ' ), 'S1Q17UO7b' )
+    } )
+
+    it( 'extract with parse - no default value', ( ) => {
+        const { container } = this
+        expectEqual( container.create( 'H1HFGPdXb' ), 'S1Q17UO7b' )
     } )
 } )
 
