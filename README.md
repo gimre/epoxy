@@ -3,7 +3,7 @@
 ![build status](https://img.shields.io/travis/gimre/epoxy/master.svg?style=flat-square)
 ![test coverage](https://img.shields.io/codecov/c/github/gimre/epoxy/master.svg?style=flat-square)
 
-Epoxy is a lightweight (195 sloc) IoC container for NodeJS. Notable features:
+Epoxy is a lightweight (~200 sloc) IoC container for NodeJS. Notable features:
   * automatic dependency injection ( in multiple flavours )
   * multiple injection patterns - ```factory, constructor, singleton, constant```
   * circular depedency detection and resolution, if possible
