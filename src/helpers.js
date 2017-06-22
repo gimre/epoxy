@@ -1,7 +1,16 @@
 
 const stack = require( 'callsite' )
 
-exports = module.exports = {
+const helpers = {
+    capitalize( str ) {
+        return str.charAt( 0 ).toUpperCase( ) + str.slice( 1 )
+    },
+
+    getConstructor( obj ) {
+        const constructor = helpers.capitalize( typeof obj )
+        return constructor in global ? global[ constructor ] : Object
+    },
+
     getExternalCaller( callee ) {
         const callsites = stack( ).slice( 1 )
         for( const callsite of callsites ) {
@@ -11,6 +20,7 @@ exports = module.exports = {
             }
         }
     },
+
     parseFunction( fn ) {
         const [ match, dependencyString ] = fn
             .toString( )
@@ -50,3 +60,5 @@ exports = module.exports = {
         } )
     }
 }
+
+exports = module.exports = helpers

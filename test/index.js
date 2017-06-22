@@ -1,8 +1,9 @@
 
-const chai      = require( 'chai' )
-const path      = require( 'path' )
-const sinon     = require( 'sinon' )
-const sinonChai = require( 'sinon-chai' )
+const chai          = require( 'chai' )
+const child_process = require( 'child_process' )
+const path          = require( 'path' )
+const sinon         = require( 'sinon' )
+const sinonChai     = require( 'sinon-chai' )
 
 const { expect } = chai
 
@@ -16,10 +17,14 @@ const {
     Types
 } = require( '../lib' )
 
+const {
+    Symbols
+} = require( 'lazyref' )
+
 process.env.DEBUG = '='
 
 const expectEqual = ( a, b ) =>
-    expect( a == b || a.equals( b ) ).to.be.true
+    expect( a == b || a[ Symbol.equals ]( b ) ).to.be.true
 
 const suite = ( name, tests ) => {
     describe( name, ( ) => {
@@ -174,3 +179,17 @@ suite( 'configure providers at runtime', ( ) => {
     it( 'add provider', ( ) => { } )
     it( 'remove provider', ( ) => { } )
 } )
+
+// describe( 'examples', ( ) => {
+//     it( 'basic', ( ) => {
+//         const { status, stderr } = child_process
+//         .spawnSync( 'node', [ './examples/basic/index.js' ], {
+//             shell: true
+//         } )
+
+//         if( stderr ) {
+//             console.log( stderr.toString( ) )
+//         }
+//         expect( status ).to.be.equal( 0 )
+//     } )
+// } )

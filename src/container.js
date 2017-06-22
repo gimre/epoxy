@@ -3,13 +3,17 @@
 
 const p  = require( 'path' )
 
-const { LazyObject } = require( 'lazyref' )
+const { LazyObject, Symbols } = require( 'lazyref' )
 
-const { getExternalCaller } = require( './helpers' )
-const Errors                = require( './errors' )
-const Providers             = require( './providers' )
-const Strategies            = require( './strategies' )
-const Types                 = require( './types' )
+const Errors     = require( './errors' )
+const Providers  = require( './providers' )
+const Strategies = require( './strategies' )
+const Types      = require( './types' )
+
+const {
+    getConstructor,
+    getExternalCaller
+} = require( './helpers' )
 
 exports = module.exports = class Container {
     constructor( providers = [ Providers.CurrentDirectory ] ) {
@@ -34,9 +38,9 @@ exports = module.exports = class Container {
             const instances = dependencies.map( d => instanceCache.get( d ) )
             const instance  = instanceCache.get( dep )
 
-            if( instance instanceof LazyObject ) {
-                instance
-                .resolveAs( this.getInstance( instances, factory, type ) )
+            if( instance[ Symbols.constructor ] === LazyObject ) {
+                const concrete = this.getInstance( instances, factory, type )
+                instance[ Symbols.resolveAs ]( concrete )
             }
         }
 
@@ -53,21 +57,24 @@ exports = module.exports = class Container {
             }
 
             const { dependencies, factory } = factoryCache.get( dep )
-            if( this.isNodeModule( id ) ) {
+            if( this.isNodeModule( dep ) ) {
                 instanceCache.set( dep, factory )
                 continue
             }
 
             if( ! instanceCache.has( dep ) ) {
-                instanceCache.set( dep, new LazyObject )
+                const constructor = getConstructor( factory )
+                instanceCache.set( dep, new LazyObject( constructor ) )
             }
 
-            const { size } = dependencyTree
-            dependencies.forEach( d => dependencyTree.add( d ) )
+            if( dependencies.length ) {
+                const { size } = dependencyTree
+                dependencies.forEach( d => dependencyTree.add( d ) )
 
-            // no size change for the Set => we had a duplicate
-            if( dependencyTree.size === size ) {
-                console.warn( Errors.CircularDependency( id ) )
+                // no size change for the Set => we had a duplicate
+                if( dependencyTree.size === size ) {
+                    console.warn( Errors.CircularDependency( id ) )
+                }
             }
         }
 
@@ -126,7 +133,9 @@ exports = module.exports = class Container {
             factory  = this.load( location )
         }
 
-        const { dependencies, type } = this.getFactoryMetadata( factory )
+        const { dependencies, type = Types.Singleton } =
+            this.getFactoryMetadata( factory )
+
         const entry = { dependencies, factory, location, type }
         this.factoryCache.set( id, entry )
 
