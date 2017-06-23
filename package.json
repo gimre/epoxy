@@ -17,7 +17,7 @@
         "id": "node -e \"console.log( require( 'shortid' ).generate( ) )\"",
         "test": "cross-env DEBUG=epoxy nyc --reporter=lcovonly mocha test/index.js && codecov"
     },
-    "version": "0.1.3",
+    "version": "0.1.4",
     "dependencies": {
         "callsite": "^1.0.0",
         "debug": "^2.6.8",

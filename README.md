@@ -1,5 +1,6 @@
 # epoxy
 
+![npm version](https://img.shields.io/npm/v/epoxy-di.svg?style=flat-square)
 ![build status](https://img.shields.io/travis/gimre/epoxy/master.svg?style=flat-square)
 ![test coverage](https://img.shields.io/codecov/c/github/gimre/epoxy/master.svg?style=flat-square)
 
