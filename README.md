@@ -144,5 +144,10 @@ Multiple injection types are supported:
 ### Circular dependency
 Circular dependencies are allowed and will be resolved ( with the help of [ lazyref ]( https://github.com/gimre/lazyref ) ), but generally if you come to a situation where you have a circular dependency in your project it is likely that you have a design flaw that you can correct rather than keep a cicular dependency.
 
+### Next on my list
+- [ ] async modules
+- [ ] performance benchmarks
+- [ ] more robust depedency parsing
+
 ### License
 MIT
