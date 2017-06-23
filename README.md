@@ -5,8 +5,9 @@
 
 Epoxy is a lightweight (~200 sloc) IoC container for NodeJS. Notable features:
   * automatic dependency injection ( in multiple flavours )
-  * multiple injection patterns - ```factory, constructor, singleton, constant```
-  * circular depedency detection and resolution, if possible
+  * multiple injection patterns - ```constant, constructor, factory, singleton```
+  * circular depedency detection and resolution
+  * made with ❤ and ES2015
 
 ## Installation
 ```npm install epoxy-di```
@@ -15,14 +16,15 @@ Epoxy is a lightweight (~200 sloc) IoC container for NodeJS. Notable features:
 ---
   * [ Basic Usage ]( #basic-usage )
   * [ API ]( #api )
-    * [ Container ]( #container )
-        * [ constructor( [ providers ] ) ]( #constructor-providers-providerscurrentdirectory )
-        * [ create( id ) ]( #containercreate-id )
-        * [ provide( path ) ]( #containerprovide-path )
-        * [ register( id, factory ) ]( #containerregister-id-factory )
-    * [ Providers ]( #providers )
-    * [ Strategies ]( #strategies )
-    * [ Types ]( #types )
+      * [ Container ]( #container )
+          * [ constructor( [ providers ] ) ]( #constructor-providers-providerscurrentdirectory )
+          * [ create( id ) ]( #containercreate-id )
+          * [ provide( path ) ]( #containerprovide-path )
+          * [ register( id, factory ) ]( #containerregister-id-factory )
+      * [ Providers ]( #providers )
+      * [ Strategies ]( #strategies )
+      * [ Types ]( #types )
+  * [ License ]( #license )
 
 ## Basic Usage
 ```javascript
@@ -78,7 +80,7 @@ Creates the module with the given id. Resolves dependencies automatically and ca
 Adds [ providers ]( #providers ) after container creation.
 
 ### **Container.register( id, factory )**
-Registers a factory for the provided id with the container. Useful for mocking out modules or providing overrides
+Registers a factory for the provided id with the container. Useful for mocking out modules or providing overrides.
 
 ### **Providers**
 Providers are sources ( paths at the moment ) where to look for dependencies when resolving modules. Providers are relative to the file where [ create ]( #containercreate-id ) is called.
@@ -134,6 +136,12 @@ Multiple injection types are supported:
 
 ```Constructor``` - module treated as a constructible, injected with ```new```
 
-```Factory``` - module treated as a factory; injection is done by calling the factory each time with a fresh instance
+```Factory``` - module treated as a factory; injection is done by calling the factory each time to get a fresh instance
 
 ```Singleton``` - same as ```Factory```, but the first resulting instance is cached and injected for all subsequent times
+
+### Circular dependency
+Circular dependencies are allowed and will be resolved ( with the help of [ lazyref ]( https://github.com/gimre/lazyref ) ), but generally if you come to a situation where you have a circular dependency in your project it is likely that you have a design flaw that you can correct rather than keep a cicular dependency.
+
+### License
+MIT

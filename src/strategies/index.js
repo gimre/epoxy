@@ -1,7 +1,7 @@
 
 'use strict'
 
-const Abstract = require( './exports' )
+const Abstract = require( './abstract' )
 const Exports  = require( './exports' )
 const Parse    = require( './parse' )
 
