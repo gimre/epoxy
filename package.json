@@ -17,11 +17,11 @@
         "id": "node -e \"console.log( require( 'shortid' ).generate( ) )\"",
         "test": "cross-env DEBUG=epoxy nyc --reporter=lcovonly mocha test/index.js && codecov"
     },
-    "version": "0.1.4",
+    "version": "0.1.5",
     "dependencies": {
         "callsite": "^1.0.0",
         "debug": "^2.6.8",
-        "lazyref": "^1.1.0"
+        "lazyref": "^1.1.2"
     },
     "devDependencies": {
         "chai": "^4.0.2",
@@ -29,10 +29,10 @@
         "cross-env": "^5.0.1",
         "mocha": "^3.4.2",
         "mocha-sinon": "^2.0.0",
-        "nyc": "^11.0.2",
+        "nyc": "^11.0.3",
         "short-uuid": "^2.3.3",
         "shortid": "^2.2.8",
-        "sinon": "^2.3.5",
+        "sinon": "^2.3.6",
         "sinon-chai": "^2.11.0"
     }
 }
