@@ -155,6 +155,10 @@ suite( 'modules with dependencies', ( ) => {
         expectEqual( container.create( 'HJHF36DmW' ), 'B1GHsTDXbS1-9o6v7Z' )
     } )
 
+    it( 'resolve module with a dependency appearing multiple times', ( ) => {
+        expectEqual( this.container.create( 'dogPzIz8' ), 'dogPzIz8S1-9o6v7ZB1GHsTDXbS1-9o6v7Z' )
+    } )
+
     it( 'detect circular depedencies', ( ) => {
         const a = this.container.create( 'rJoOgZO7b' )
         const b = this.container.create( 'rkMG-WOQW' )

@@ -49,9 +49,10 @@ exports = module.exports = class Container {
 
     getDependencyTree( id ) {
         const { factoryCache, instanceCache } = this
-        const dependencyTree = new Set( [ id ] )
+        let dependencyTree = [ id ]
+        const dependencyTreeIterable = new Set( dependencyTree )
 
-        for( const dep of dependencyTree ) {
+        for( const dep of dependencyTreeIterable ) {
             if( ! factoryCache.has( dep ) ) {
                 this.register( dep, this.resolve( dep ) )
             }
@@ -68,13 +69,17 @@ exports = module.exports = class Container {
             }
 
             if( dependencies.length ) {
-                const { size } = dependencyTree
-                dependencies.forEach( d => dependencyTree.add( d ) )
+                const { size } = dependencyTreeIterable
+                dependencies.forEach( d => {
+                    dependencyTree.push( d )
+                    dependencyTreeIterable.add( d )
+                    // no size change for the Set => we had a duplicate
+                    if( dependencyTreeIterable.size === size ) {
+                        console.warn( Errors.CircularDependency( id ) )
+                    }
+                } )
 
-                // no size change for the Set => we had a duplicate
-                if( dependencyTree.size === size ) {
-                    console.warn( Errors.CircularDependency( id ) )
-                }
+                dependencyTree = [ ... new Set( dependencyTree.slice( ).reverse( ) ) ].reverse( )
             }
         }
 
